@@ -1,8 +1,15 @@
 package ru.pkorobeinikov.restservice.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(as = Point.class)
 final public class Point {
     private int x;
     private int y;
+
+    public Point() {
+        super();
+    }
 
     public Point(int x, int y) {
         this.x = x;
