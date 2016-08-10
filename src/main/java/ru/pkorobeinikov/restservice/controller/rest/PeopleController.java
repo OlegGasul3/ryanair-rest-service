@@ -40,6 +40,10 @@ public class PeopleController {
 
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<Person> putPerson(@RequestBody Person person) {
+        if (null == person.getPoint()) {
+            person.setPoint(Point.randomPoint());
+        }
+
         personRepository.add(person);
 
         return new ResponseEntity<Person>(person, HttpStatus.CREATED);
