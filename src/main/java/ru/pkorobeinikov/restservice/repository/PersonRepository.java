@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class PersonRepository {
-    private static ConcurrentHashMap<String, Person> personStorage = new ConcurrentHashMap<String, Person>();
+    private static ConcurrentHashMap<String, Person> personStorage = new ConcurrentHashMap<>();
 
     public Person add(Person person) {
         personStorage.put(person.getId(), person);

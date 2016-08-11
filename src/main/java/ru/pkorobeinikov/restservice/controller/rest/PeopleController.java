@@ -35,7 +35,7 @@ public class PeopleController {
     public ResponseEntity<List<Person>> index(@RequestParam(value = "radius") int radius) {
         List<Person> people = personRepository.findByRadius(radius);
 
-        return new ResponseEntity<List<Person>>(people, HttpStatus.OK);
+        return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
@@ -46,7 +46,7 @@ public class PeopleController {
 
         personRepository.add(person);
 
-        return new ResponseEntity<Person>(person, HttpStatus.CREATED);
+        return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "{personId}", method = RequestMethod.DELETE)
@@ -57,7 +57,7 @@ public class PeopleController {
 
         Person p = personRepository.delete(personId);
 
-        return new ResponseEntity<Person>(p, HttpStatus.OK);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{personId}/coordinates", method = RequestMethod.GET)
@@ -67,6 +67,6 @@ public class PeopleController {
             throw new ResourceNotFoundException();
         }
 
-        return new ResponseEntity<Point>(p.getPoint(), HttpStatus.OK);
+        return new ResponseEntity<>(p.getPoint(), HttpStatus.OK);
     }
 }
