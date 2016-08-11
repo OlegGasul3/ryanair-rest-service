@@ -7,7 +7,7 @@ import ru.pkorobeinikov.restservice.entity.*;
 import ru.pkorobeinikov.restservice.exception.ResourceNotFoundException;
 import ru.pkorobeinikov.restservice.repository.PersonRepository;
 
-import java.util.Enumeration;
+import java.util.List;
 
 // HTTP status codes by RFC2616:
 // https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
@@ -32,10 +32,10 @@ public class PeopleController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<Enumeration<Person>> index(@RequestParam(value = "radius") int radius) {
-        Enumeration<Person> people = personRepository.findByRadius(radius);
+    public ResponseEntity<List<Person>> index(@RequestParam(value = "radius") int radius) {
+        List<Person> people = personRepository.findByRadius(radius);
 
-        return new ResponseEntity<Enumeration<Person>>(people, HttpStatus.OK);
+        return new ResponseEntity<List<Person>>(people, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT)

@@ -3,8 +3,9 @@ package ru.pkorobeinikov.restservice.repository;
 import org.springframework.stereotype.Service;
 import ru.pkorobeinikov.restservice.entity.Person;
 
-import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonRepository {
@@ -27,7 +28,11 @@ public class PersonRepository {
         return personStorage.get(id);
     }
 
-    public Enumeration<Person> findByRadius(int radius) {
-        return personStorage.elements();
+    public List<Person> findByRadius(int radius) {
+        return personStorage
+                .values()
+                .stream()
+                .filter(p -> Math.pow(p.getPoint().getX(), 2) + Math.pow(p.getPoint().getY(), 2) <= Math.pow(radius, 2))
+                .collect(Collectors.toList());
     }
 }
