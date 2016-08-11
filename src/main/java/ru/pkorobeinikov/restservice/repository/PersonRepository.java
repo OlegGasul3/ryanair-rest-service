@@ -28,6 +28,13 @@ public class PersonRepository {
         return personStorage.get(id);
     }
 
+    public List<Person> findAll() {
+        return personStorage
+                .values()
+                .stream()
+                .collect(Collectors.toList());
+    }
+
     public List<Person> findByRadius(int radius) {
         return personStorage
                 .values()
