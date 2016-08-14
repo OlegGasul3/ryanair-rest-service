@@ -1,6 +1,7 @@
 package ru.pkorobeinikov.restservice.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import ru.pkorobeinikov.restservice.util.BoundedRandomValueGenerator;
 
 @JsonDeserialize(as = Point.class)
 final public class Point {
@@ -20,7 +21,10 @@ final public class Point {
     }
 
     public static Point randomPoint() {
-        return new Point(rand(MIN, MAX), rand(MIN, MAX));
+        int x = BoundedRandomValueGenerator.rand(MIN, MAX);
+        int y = BoundedRandomValueGenerator.rand(MIN, MAX);
+
+        return new Point(x, y);
     }
 
     public int getX() {
@@ -37,9 +41,5 @@ final public class Point {
 
     public void setY(int y) {
         this.y = y;
-    }
-
-    private static int rand(int min, int max) {
-        return min + (int) (Math.random() * ((max - min) + 1));
     }
 }
