@@ -27,6 +27,11 @@ final public class Point {
         return new Point(x, y);
     }
 
+    @Override
+    public String toString() {
+        return String.format("Point{x=%d, y=%d}", x, y);
+    }
+
     public int getX() {
         return x;
     }

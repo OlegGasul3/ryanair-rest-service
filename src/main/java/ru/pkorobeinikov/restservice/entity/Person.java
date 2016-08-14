@@ -20,6 +20,11 @@ final public class Person {
         this.point = point;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Person{id=%s, point=%s}", id, point);
+    }
+
     public String getId() {
         return id;
     }
