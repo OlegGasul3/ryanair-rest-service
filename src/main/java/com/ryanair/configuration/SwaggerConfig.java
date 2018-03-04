@@ -1,4 +1,4 @@
-package ru.pkorobeinikov.restservice.configuration;
+package com.ryanair.configuration;
 
 import org.springframework.context.annotation.*;
 import springfox.documentation.builders.*;
@@ -13,7 +13,7 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("ru.pkorobeinikov.restservice.controller.rest"))
+                .apis(RequestHandlerSelectors.basePackage("com.ryanair.controller.rest"))
                 .paths(PathSelectors.any())
                 .build();
     }
