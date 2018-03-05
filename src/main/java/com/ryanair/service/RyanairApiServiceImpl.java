@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -50,12 +51,14 @@ public class RyanairApiServiceImpl implements RyanairApiService {
     }
 
     @Override
+    @Cacheable
     public List<Direction> requestDirections() throws IOException {
         String response = makeGetRequest("https://api.ryanair.com/core/3/routes/");
         return parseDirections(response);
     }
 
     @Override
+    @Cacheable
     public MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int year, int month) throws IOException {
         String response = makeGetRequest("https://api.ryanair.com/timetable/3/schedules/" + fromAirport + "/" + toAirport + "/years/" + year + "/months/" + month);
         return parseSchedule(response);
