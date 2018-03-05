@@ -65,20 +65,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         }
     }
 
-    @Override
-    public List<FlightRoute> getFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) throws IOException {
-        if (arrivalDateTime.isBefore(departureDateTime)) {
-            return Collections.<FlightRoute>emptyList();
-        }
-
-        Set directFlights = directRoutes.get(departureAirport);
-        if (directFlights.isEmpty() || !directFlights.contains(arrivalAirport)) {
-            return Collections.<FlightRoute>emptyList();
-        }
-
-        List<FlightRoute> result = new LinkedList();
-
-        Map<String, List<AirportSchedule>> airportSchedules = new HashMap<>();
+    private void fillAirportSchedules(Map<String, List<AirportSchedule>> airportSchedules, String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         String airportsKey = departureAirport + "/" + arrivalAirport;
 
         LocalDate date = departureDateTime.toLocalDate();
@@ -86,11 +73,52 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
 
         while (date.isBefore(arrivalDate)) {
             int year = date.getYear();
-            MonthSchedule monthSchedule = ryanairApiService.requestMonthSchedule(departureAirport, arrivalAirport, year, date.getMonthOfYear());
-            addSchedules(airportSchedules, airportsKey, year, monthSchedule);
+            MonthSchedule monthSchedule = null;
+            try {
+                monthSchedule = ryanairApiService.requestMonthSchedule(departureAirport, arrivalAirport, year, date.getMonthOfYear());
+                addSchedules(airportSchedules, airportsKey, year, monthSchedule);
+            } catch (IOException e) {
+                // ignore
+            }
 
             date = date.plusMonths(1);
         }
+    }
+
+    private Set getIntermediateAirports(Set<String> directFlights, String arrivalAirport) {
+        Set<String> result = new HashSet<>();
+        for (String arrival : directFlights) {
+            Set<String> routes = directRoutes.get(arrival);
+            if (routes.contains(arrivalAirport)) {
+                result.add(arrival);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<FlightRoute> getFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) throws IOException {
+        if (arrivalDateTime.isBefore(departureDateTime)) {
+            return Collections.<FlightRoute>emptyList();
+        }
+
+        Set<String> directFlights = directRoutes.get(departureAirport);
+        if (directFlights.isEmpty() || !directFlights.contains(arrivalAirport)) {
+            return Collections.<FlightRoute>emptyList();
+        }
+
+        List<FlightRoute> result = new LinkedList<>();
+
+        Map<String, List<AirportSchedule>> airportSchedules = new HashMap<>();
+        fillAirportSchedules(airportSchedules, departureAirport, arrivalAirport, departureDateTime, arrivalDateTime);
+
+        Set<String> airports = getIntermediateAirports(directFlights, arrivalAirport);
+        for (String airport : airports) {
+            fillAirportSchedules(airportSchedules, airport, arrivalAirport, departureDateTime, arrivalDateTime);
+        }
+
+        // todo: find all
 
 
         // todo: find with 1 stop
