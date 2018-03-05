@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface RyanairApiService {
     List<Direction> requestDirections() throws IOException;
-    MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int month, int year) throws IOException;
+    MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int year, int month) throws IOException;
 }

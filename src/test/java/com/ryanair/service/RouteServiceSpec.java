@@ -2,6 +2,8 @@ package com.ryanair.service;
 
 import com.ryanair.entity.Direction;
 import com.ryanair.entity.MonthSchedule;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -20,7 +22,12 @@ public class RouteServiceSpec {
     @Test
     public void testLoadSchedule() throws IOException {
         RyanairApiServiceImpl ryanairApiService = new RyanairApiServiceImpl();
-        MonthSchedule monthSchedule = ryanairApiService.requestMonthSchedule("DUB", "WRO", 7, 2018);
+        MonthSchedule monthSchedule = ryanairApiService.requestMonthSchedule("DUB", "WRO", 2018, 7);
+
+        InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
+        interconnectionsService.init();
+
+        interconnectionsService.getFlights("DUB", "WRO", new LocalDateTime(2018, 7, 1, 0, 0), new LocalDateTime(2018, 8, 1, 0, 0));
 
         assert true;
     }

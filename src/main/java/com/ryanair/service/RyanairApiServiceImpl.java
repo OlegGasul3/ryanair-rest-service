@@ -56,7 +56,7 @@ public class RyanairApiServiceImpl implements RyanairApiService {
     }
 
     @Override
-    public MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int month, int year) throws IOException {
+    public MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int year, int month) throws IOException {
         String response = makeGetRequest("https://api.ryanair.com/timetable/3/schedules/" + fromAirport + "/" + toAirport + "/years/" + year + "/months/" + month);
         return parseSchedule(response);
     }
