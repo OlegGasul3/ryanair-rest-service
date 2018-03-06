@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/flights")
+@RequestMapping("/interconnections")
 public class InterconnectionsController {
     private final InterconnectionsService routeService;
 
