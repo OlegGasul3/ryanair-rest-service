@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class InterconnectionsServiceImpl implements InterconnectionsService {
+    private final static int HOURS = 2;
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -118,7 +119,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             List<AirportSchedule> schedules = getSchedules(departureAirport, connectAirport, departureDateTime, arrivalDateTime);
 
             for (AirportSchedule schedule : schedules) {
-                List<AirportSchedule> destSchedules = getSchedules(connectAirport, departureAirport, schedule.getArrivalDateTime().plusHours(2), arrivalDateTime);
+                List<AirportSchedule> destSchedules = getSchedules(connectAirport, departureAirport, schedule.getArrivalDateTime().plusHours(HOURS), arrivalDateTime);
                 FlightLeg leg = new FlightLeg(departureAirport, connectAirport, schedule.getDepartureDateTime(), schedule.getArrivalDateTime());
                 result.addAll(destSchedules.stream().map((AirportSchedule connectAirportSchedule) -> {
                     List<FlightLeg> legs = new LinkedList<>();
