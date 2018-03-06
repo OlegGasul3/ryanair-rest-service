@@ -1,7 +1,6 @@
 package com.ryanair.entity;
 
 import lombok.Getter;
-
 import java.util.List;
 
 @Getter

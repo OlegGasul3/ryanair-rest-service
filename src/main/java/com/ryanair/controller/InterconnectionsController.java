@@ -3,8 +3,6 @@ package com.ryanair.controller;
 import com.ryanair.entity.FlightRoute;
 import com.ryanair.service.InterconnectionsService;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

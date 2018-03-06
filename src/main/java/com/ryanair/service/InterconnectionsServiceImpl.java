@@ -151,7 +151,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             return new FlightRoute(legs);
         }).collect(Collectors.toList()));
 
-        result.addAll(getInterconnectFlights(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
+//        result.addAll(getInterconnectFlights(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
 
         return result;
     }

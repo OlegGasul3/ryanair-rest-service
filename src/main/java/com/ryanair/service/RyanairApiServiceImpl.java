@@ -8,9 +8,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,8 +16,9 @@ import java.util.List;
 
 @Service
 public class RyanairApiServiceImpl implements RyanairApiService {
+    private final static ObjectMapper MAPPER = new ObjectMapper();
 
-    private String makeGetRequest(String url) throws IOException {
+    private String makeGetRequest(final String url) throws IOException {
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet request = new HttpGet(url);
 
@@ -38,27 +37,21 @@ public class RyanairApiServiceImpl implements RyanairApiService {
         }
     }
 
-    private List<Direction> parseDirections(String json) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        List<Direction> directions = mapper.readValue(json, new TypeReference<List<Direction>>(){});
-        return directions;
+    private List<Direction> parseDirections(final String json) throws IOException {
+        return MAPPER.readValue(json, new TypeReference<List<Direction>>(){});
     }
 
-    private MonthSchedule parseSchedule(String json) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        MonthSchedule monthSchedule = mapper.readValue(json, new TypeReference<MonthSchedule>(){});
-        return monthSchedule;
+    private MonthSchedule parseSchedule(final String json) throws IOException {
+        return MAPPER.readValue(json, new TypeReference<MonthSchedule>(){});
     }
 
     @Override
     public List<Direction> requestDirections() throws IOException {
-        String response = makeGetRequest("https://api.ryanair.com/core/3/routes/");
-        return parseDirections(response);
+        return parseDirections(makeGetRequest("https://api.ryanair.com/core/3/routes/"));
     }
 
     @Override
-    public MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int year, int month) throws IOException {
-        String response = makeGetRequest("https://api.ryanair.com/timetable/3/schedules/" + fromAirport + "/" + toAirport + "/years/" + year + "/months/" + month);
-        return parseSchedule(response);
+    public MonthSchedule requestMonthSchedule(final String fromAirport, final String toAirport, int year, int month) throws IOException {
+        return parseSchedule(makeGetRequest("https://api.ryanair.com/timetable/3/schedules/" + fromAirport + "/" + toAirport + "/years/" + year + "/months/" + month));
     }
 }
