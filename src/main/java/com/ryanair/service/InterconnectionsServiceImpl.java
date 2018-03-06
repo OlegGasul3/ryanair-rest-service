@@ -81,6 +81,12 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         return schedules;
     }
 
+    private List<AirportSchedule> filterSchedules(List<AirportSchedule> schedules, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+        return schedules.stream().filter((AirportSchedule schedule) ->
+                schedule.getDepartureDateTime().isAfter(departureDateTime) && schedule.getArrivalDateTime().isBefore(arrivalDateTime)
+        ).collect(Collectors.toList());
+    }
+
     private List<AirportSchedule> getSchedules(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         LocalDate date = departureDateTime.toLocalDate();
         LocalDate arrivalDate = arrivalDateTime.plusMonths(1).toLocalDate();
@@ -95,18 +101,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         return schedules;
     }
 
-    private List<AirportSchedule> filterSchedules(List<AirportSchedule> schedules, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
-        return schedules.stream().filter((AirportSchedule schedule) ->
-            schedule.getDepartureDateTime().isAfter(departureDateTime) && schedule.getArrivalDateTime().isBefore(arrivalDateTime)
-        ).collect(Collectors.toList());
-    }
-
-    private List<FlightRoute> getInterconnectFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
-        Set<String> directFlights = directRoutes.get(departureAirport);
-        if (directFlights.isEmpty()) {
-            return Collections.<FlightRoute>emptyList();
-        }
-
+    private List<FlightRoute> getInterconnectFlights(Set<String> directFlights, String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         Set<String> connectAirports = directFlights.stream().filter((String airport) -> {
             Set<String> routes = directRoutes.get(airport);
 
@@ -139,8 +134,8 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             return Collections.<FlightRoute>emptyList();
         }
 
-        Set<String> directFlights = directRoutes.get(departureAirport);
-        if (directFlights.isEmpty()) {
+        Set<String> directRoutes = this.directRoutes.get(departureAirport);
+        if (directRoutes.isEmpty()) {
             return Collections.<FlightRoute>emptyList();
         }
 
@@ -152,7 +147,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             return new FlightRoute(legs);
         }).collect(Collectors.toList()));
 
-        result.addAll(getInterconnectFlights(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
+        result.addAll(getInterconnectFlights(directRoutes, departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
 
         return result;
     }
