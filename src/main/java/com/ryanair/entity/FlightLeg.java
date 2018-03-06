@@ -1,19 +1,33 @@
 package com.ryanair.entity;
 
-import lombok.Getter;
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
-@Getter
 public class FlightLeg {
     private final String departureAirport;
     private final String arrivalAirport;
-    private final LocalDate departureDateTime;
-    private final LocalDate arrivalDateTime;
+    private final LocalDateTime departureDateTime;
+    private final LocalDateTime arrivalDateTime;
 
-    public FlightLeg(String departureAirport, String arrivalAirport, LocalDate departureDateTime, LocalDate arrivalDateTime) {
+    public FlightLeg(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         this.departureAirport = departureAirport;
         this.arrivalAirport = arrivalAirport;
         this.departureDateTime = departureDateTime;
         this.arrivalDateTime = arrivalDateTime;
+    }
+
+    public String getDepartureAirport() {
+        return departureAirport;
+    }
+
+    public String getArrivalAirport() {
+        return arrivalAirport;
+    }
+
+    public String getDepartureDateTime() {
+        return departureDateTime.toString();
+    }
+
+    public String getArrivalDateTime() {
+        return arrivalDateTime.toString();
     }
 }

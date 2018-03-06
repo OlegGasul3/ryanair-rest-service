@@ -51,14 +51,12 @@ public class RyanairApiServiceImpl implements RyanairApiService {
     }
 
     @Override
-    @Cacheable
     public List<Direction> requestDirections() throws IOException {
         String response = makeGetRequest("https://api.ryanair.com/core/3/routes/");
         return parseDirections(response);
     }
 
     @Override
-    @Cacheable
     public MonthSchedule requestMonthSchedule(String fromAirport, String toAirport, int year, int month) throws IOException {
         String response = makeGetRequest("https://api.ryanair.com/timetable/3/schedules/" + fromAirport + "/" + toAirport + "/years/" + year + "/months/" + month);
         return parseSchedule(response);

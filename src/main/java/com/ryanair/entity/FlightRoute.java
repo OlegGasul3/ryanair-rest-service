@@ -13,6 +13,6 @@ public class FlightRoute {
     }
 
     public int getStops() {
-        return legs.size();
+        return legs.size() - 1;
     }
 }

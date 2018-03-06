@@ -1,6 +1,7 @@
 package com.ryanair.service;
 
 import com.ryanair.entity.Direction;
+import com.ryanair.entity.FlightRoute;
 import com.ryanair.entity.MonthSchedule;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class RouteServiceSpec {
         InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
         interconnectionsService.init();
 
-        interconnectionsService.getFlights("DUB", "WRO", new LocalDateTime(2018, 7, 1, 0, 0), new LocalDateTime(2018, 8, 1, 0, 0));
+        List<FlightRoute> result = interconnectionsService.getFlights("DUB", "WRO", new LocalDateTime(2018, 7, 1, 14, 0), new LocalDateTime(2018, 7, 1, 23, 0));
 
         assert true;
     }
