@@ -22,7 +22,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
     @Autowired
     private final RyanairApiService ryanairApiService;
 
-    private final Map<String, Set<String>> directRoutes = new HashMap<>();
+    private final ConcurrentHashMap<String, Set<String>> directRoutes = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, List<AirportSchedule>> routeSchedules = new ConcurrentHashMap<>();
 
     public InterconnectionsServiceImpl(RyanairApiService ryanairApiService) {
@@ -32,7 +32,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
     @PostConstruct
     public void init() {
         try {
-            LOG.info("Loading routes...");
+            LOG.info("Loading direct routes...");
             List<Direction> directions = ryanairApiService.requestDirections();
             for (Direction direction : directions) {
                 String airportFrom = direction.getAirportFrom();
@@ -46,7 +46,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             }
             LOG.info("DONE");
         } catch (IOException e) {
-            LOG.info("Error while loading routes", e);
+            LOG.info("Error while loading direct routes", e);
         }
 
     }
@@ -57,7 +57,8 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         if (schedules != null) {
             return schedules;
         }
-        schedules = new ArrayList<>();
+
+        schedules = new LinkedList<>();
 
         try {
             MonthSchedule monthSchedule = ryanairApiService.requestMonthSchedule(departureAirport, arrivalAirport, year, month);
@@ -79,10 +80,18 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         return schedules;
     }
 
-    private Set getIntermediateAirports(Set<String> directFlights, String arrivalAirport) {
-        return directFlights.stream().filter((String arrival) ->
-            directRoutes.containsKey(arrival) && directRoutes.get(arrival).contains(arrivalAirport)
-        ).collect(Collectors.toSet());
+    private List<AirportSchedule> getSchedules(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+        LocalDate date = departureDateTime.toLocalDate();
+        LocalDate arrivalDate = arrivalDateTime.plusMonths(1).toLocalDate();
+
+        List<AirportSchedule> schedules = new LinkedList<>();
+        while (date.isBefore(arrivalDate)) {
+            schedules.addAll(filterSchedules(getSchedules(departureAirport, arrivalAirport, date.getYear(), date.getMonthOfYear()), departureDateTime, arrivalDateTime));
+
+            date = date.plusMonths(1);
+        }
+
+        return schedules;
     }
 
     private List<AirportSchedule> filterSchedules(List<AirportSchedule> schedules, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
@@ -91,8 +100,40 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         ).collect(Collectors.toList());
     }
 
+    private List<FlightRoute> getInterconnectFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+        Set<String> directFlights = directRoutes.get(departureAirport);
+        if (directFlights.isEmpty()) {
+            return Collections.<FlightRoute>emptyList();
+        }
+
+        Set<String> connectAirports = directFlights.stream().filter((String airport) -> {
+            Set<String> routes = directRoutes.get(airport);
+
+            return routes != null && routes.contains(arrivalAirport);
+        }).collect(Collectors.toSet());
+
+        List<FlightRoute> result = new LinkedList<>();
+
+        for (String connectAirport : connectAirports) {
+            List<AirportSchedule> schedules = getSchedules(departureAirport, connectAirport, departureDateTime, arrivalDateTime);
+
+            for (AirportSchedule schedule : schedules) {
+                List<AirportSchedule> destSchedules = getSchedules(connectAirport, departureAirport, schedule.getArrivalDateTime().plusHours(2), arrivalDateTime);
+                FlightLeg leg = new FlightLeg(departureAirport, connectAirport, schedule.getDepartureDateTime(), schedule.getArrivalDateTime());
+                result.addAll(destSchedules.stream().map((AirportSchedule connectAirportSchedule) -> {
+                    List<FlightLeg> legs = new LinkedList<>();
+                    legs.add(leg);
+                    legs.add(new FlightLeg(connectAirport, arrivalAirport, connectAirportSchedule.getDepartureDateTime(), connectAirportSchedule.getArrivalDateTime()));
+                    return new FlightRoute(legs);
+                }).collect(Collectors.toList()));
+            }
+        }
+
+        return result;
+    }
+
     @Override
-    public List<FlightRoute> getFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) throws IOException {
+    public List<FlightRoute> getFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         if (arrivalDateTime.isBefore(departureDateTime)) {
             return Collections.<FlightRoute>emptyList();
         }
@@ -104,20 +145,13 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
 
         List<FlightRoute> result = new LinkedList<>();
 
-        LocalDate date = departureDateTime.toLocalDate();
-        LocalDate arrivalDate = arrivalDateTime.plusMonths(1).toLocalDate();
+        result.addAll(getSchedules(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime).stream().map((AirportSchedule airportSchedule) -> {
+            List<FlightLeg> legs = new LinkedList<>();
+            legs.add(new FlightLeg(departureAirport, arrivalAirport, airportSchedule.getDepartureDateTime(), airportSchedule.getArrivalDateTime()));
+            return new FlightRoute(legs);
+        }).collect(Collectors.toList()));
 
-        while (date.isBefore(arrivalDate)) {
-            List<AirportSchedule> schedules = filterSchedules(getSchedules(departureAirport, arrivalAirport, date.getYear(), date.getMonthOfYear()), departureDateTime, arrivalDateTime);
-
-            result.addAll(schedules.stream().map((AirportSchedule airportSchedule) -> {
-                List<FlightLeg> legs = new LinkedList<>();
-                legs.add(new FlightLeg(departureAirport, arrivalAirport, airportSchedule.getDepartureDateTime(), airportSchedule.getArrivalDateTime()));
-                return new FlightRoute(legs);
-            }).collect(Collectors.toList()));
-
-            date = date.plusMonths(1);
-        }
+        result.addAll(getInterconnectFlights(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
 
         return result;
     }
