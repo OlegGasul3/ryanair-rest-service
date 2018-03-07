@@ -50,7 +50,7 @@ public class InterconnectionsServiceSpec {
                 when(ryanairApiService.requestMonthSchedule(departureAirport, connectAirport, 2018, i)).thenReturn(monthSchedule);
                 when(ryanairApiService.requestMonthSchedule(connectAirport, departureAirport, 2018, i)).thenReturn(monthSchedule);
             } catch (IOException e) {
-                e.printStackTrace();
+                // ignore
             }
         });
     }
