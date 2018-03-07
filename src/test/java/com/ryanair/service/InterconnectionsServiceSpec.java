@@ -1,6 +1,7 @@
 package com.ryanair.service;
 
 import com.ryanair.entity.*;
+import org.assertj.core.util.Lists;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class InterconnectionsServiceSpec {
     RyanairApiServiceImpl ryanairApiService = mock(RyanairApiServiceImpl.class);
 
     @Before
-    public void init() throws IOException {
+    public void prepareFlights() throws IOException {
         List<Direction> directions = new LinkedList<>();
         directions.add(new Direction(departureAirport, arrivalAirport));
         directions.add(new Direction(departureAirport, connectAirport));
@@ -68,5 +69,16 @@ public class InterconnectionsServiceSpec {
 
         assertEquals(1, result.get(1).getLegs().size());
         assertEquals(0, result.get(1).getStops());
+    }
+
+    @Test
+    public void testAbsentDirections() throws IOException {
+        when(ryanairApiService.requestDirections()).thenReturn(Lists.emptyList());
+
+        InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
+        interconnectionsService.init();
+
+        List<FlightRoute> result = interconnectionsService.getFlights(departureAirport, arrivalAirport, LocalDateTime.parse("2018-07-01"), LocalDateTime.parse("2018-07-03"));
+        assertEquals(0, result.size());
     }
 }

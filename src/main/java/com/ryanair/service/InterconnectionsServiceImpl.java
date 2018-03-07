@@ -147,7 +147,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         }
 
         Set<String> directRoutes = this.directRoutes.get(departureAirport);
-        if (directRoutes.isEmpty()) {
+        if (directRoutes == null || directRoutes.isEmpty()) {
             return Collections.<FlightRoute>emptyList();
         }
 
