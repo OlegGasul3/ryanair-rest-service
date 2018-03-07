@@ -27,7 +27,7 @@ public class InterconnectionsServiceSpec {
     @Before
     public void init() throws IOException {
         List<Direction> directions = new LinkedList<>();
-        directions.add(new Direction(departureAirport, departureAirport));
+        directions.add(new Direction(departureAirport, arrivalAirport));
 
         when(ryanairApiService.requestDirections()).thenReturn(directions);
 
