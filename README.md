@@ -1,5 +1,9 @@
 # Ryanair REST service task
 
+## Dependencies
+JDK 8
+Maven 3
+
 ## How to run
 
     $ mvn clean install
