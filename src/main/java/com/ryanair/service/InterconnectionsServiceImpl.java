@@ -108,6 +108,10 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
             return routes != null && routes.contains(arrivalAirport);
         }).collect(Collectors.toSet());
 
+        if (connectAirports.isEmpty()) {
+            return Collections.<FlightRoute>emptyList();
+        }
+
         List<FlightRoute> result = new LinkedList<>();
 
         for (String connectAirport : connectAirports) {
@@ -128,6 +132,14 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
         return result;
     }
 
+    private List<FlightRoute> getDirectFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+        return getSchedules(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime).stream().map((AirportSchedule airportSchedule) -> {
+            List<FlightLeg> legs = new LinkedList<>();
+            legs.add(new FlightLeg(departureAirport, arrivalAirport, airportSchedule.getDepartureDateTime(), airportSchedule.getArrivalDateTime()));
+            return new FlightRoute(legs);
+        }).collect(Collectors.toList());
+    }
+
     @Override
     public List<FlightRoute> getFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         if (arrivalDateTime.isBefore(departureDateTime)) {
@@ -141,12 +153,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
 
         List<FlightRoute> result = new LinkedList<>();
 
-        result.addAll(getSchedules(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime).stream().map((AirportSchedule airportSchedule) -> {
-            List<FlightLeg> legs = new LinkedList<>();
-            legs.add(new FlightLeg(departureAirport, arrivalAirport, airportSchedule.getDepartureDateTime(), airportSchedule.getArrivalDateTime()));
-            return new FlightRoute(legs);
-        }).collect(Collectors.toList()));
-
+        result.addAll(getDirectFlights(departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
         result.addAll(getInterconnectFlights(directRoutes, departureAirport, arrivalAirport, departureDateTime, arrivalDateTime));
 
         return result;
