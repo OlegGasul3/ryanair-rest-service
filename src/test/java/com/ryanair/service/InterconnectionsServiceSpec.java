@@ -1,6 +1,7 @@
 package com.ryanair.service;
 
 import com.ryanair.entity.*;
+import static com.ryanair.util.Airport.*;
 import org.assertj.core.util.Lists;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -20,9 +21,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InterconnectionsServiceSpec {
-    private final String departureAirport = "DUB";
-    private final String connectAirport = "KBP";
-    private final String arrivalAirport = "WRO";
+    private final String departureAirport = DUB.toString();
+    private final String connectAirport = KBP.toString();
+    private final String arrivalAirport = WRO.toString();
 
     RyanairApiServiceImpl ryanairApiService = mock(RyanairApiServiceImpl.class);
 
@@ -56,8 +57,12 @@ public class InterconnectionsServiceSpec {
         });
     }
 
+    private void setFlight(String departureAirport, String arrivalAirport) {
+
+    }
+
     @Test
-    public void testFlights() throws IOException {
+    public void testDirectFlights() throws IOException {
         InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
         interconnectionsService.init();
         List<FlightRoute> result = interconnectionsService.getFlights(departureAirport, arrivalAirport, LocalDateTime.parse("2018-07-01"), LocalDateTime.parse("2018-07-03"));
@@ -72,7 +77,7 @@ public class InterconnectionsServiceSpec {
     }
 
     @Test
-    public void testAbsentDirections() throws IOException {
+    public void testDirectionsNotFound() throws IOException {
         when(ryanairApiService.requestDirections()).thenReturn(Lists.emptyList());
 
         InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
