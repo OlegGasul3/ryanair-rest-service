@@ -1,7 +1,9 @@
 package com.ryanair.service;
 
 import com.ryanair.entity.*;
-import static com.ryanair.util.Airport.*;
+import static com.ryanair.service.util.Airport.*;
+
+import com.ryanair.service.util.Airport;
 import org.assertj.core.util.Lists;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -57,23 +59,25 @@ public class InterconnectionsServiceSpec {
         });
     }
 
-    private void setFlight(String departureAirport, String arrivalAirport) {
-
-    }
-
     @Test
-    public void testDirectFlights() throws IOException {
+    public void testFlights() throws IOException {
         InterconnectionsServiceImpl interconnectionsService = new InterconnectionsServiceImpl(ryanairApiService);
         interconnectionsService.init();
-        List<FlightRoute> result = interconnectionsService.getFlights(departureAirport, arrivalAirport, LocalDateTime.parse("2018-07-01"), LocalDateTime.parse("2018-07-03"));
+        List<FlightRoute> result = interconnectionsService.getFlights(departureAirport, arrivalAirport, LocalDateTime.parse("2018-07-01"), LocalDateTime.parse("2018-07-05"));
 
-        assertEquals(8, result.size());
+        assertEquals(32, result.size());
 
         assertEquals(1, result.get(0).getLegs().size());
         assertEquals(0, result.get(0).getStops());
 
-        assertEquals(1, result.get(1).getLegs().size());
-        assertEquals(0, result.get(1).getStops());
+        assertEquals(2, result.get(18).getLegs().size());
+        assertEquals(1, result.get(18).getStops());
+
+        List<FlightLeg> legs = result.get(18).getLegs();
+        assertEquals(Airport.DUB.toString(), legs.get(0).getDepartureAirport());
+        assertEquals(Airport.KBP.toString(), legs.get(0).getArrivalAirport());
+        assertEquals(Airport.KBP.toString(), legs.get(1).getDepartureAirport());
+        assertEquals(Airport.WRO.toString(), legs.get(1).getArrivalAirport());
     }
 
     @Test
