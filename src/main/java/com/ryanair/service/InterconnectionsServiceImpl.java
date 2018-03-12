@@ -73,7 +73,7 @@ public class InterconnectionsServiceImpl implements InterconnectionsService {
                 }).collect(Collectors.toList()));
             }
         } catch (IOException e) {
-            // ignore
+            LOG.error("Could't find schedule " + key, e);
         }
 
         routeSchedules.put(key, schedules);
