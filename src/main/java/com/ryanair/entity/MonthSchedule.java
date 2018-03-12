@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-@JsonIgnoreProperties({"code"})
+@JsonIgnoreProperties({"code", "message"})
 public class MonthSchedule {
     private int month;
     private List<Day> days;
