@@ -1,10 +1,12 @@
 package com.ryanair.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.util.List;
 
 @Getter
+@JsonIgnoreProperties({"code"})
 public class MonthSchedule {
     private int month;
     private List<Day> days;
